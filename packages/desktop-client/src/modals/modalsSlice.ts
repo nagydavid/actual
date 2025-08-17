@@ -23,6 +23,7 @@ import { resetApp, setAppState } from '@desktop-client/app/appSlice';
 import { type SelectLinkedAccountsModalProps } from '@desktop-client/components/modals/SelectLinkedAccountsModal';
 import { createAppAsyncThunk } from '@desktop-client/redux';
 import { signOut } from '@desktop-client/users/usersSlice';
+import { EnableBankingToken } from 'loot-core/types/models/enablebanking';
 
 const sliceName = 'modals';
 
@@ -112,15 +113,7 @@ export type Modal =
   | {
       name: "enablebanking-setup-account",
       options: {
-        onMoveExternal: (arg: {
-          institutionId: string;
-        }) => Promise<
-          | { error: 'timeout' }
-          | { error: 'unknown'; message?: string }
-          | { data: GoCardlessToken }
-        >;
-        onClose?: (() => void) | undefined;
-        onSuccess: (data: GoCardlessToken) => Promise<void>;
+        onSuccess: (data: EnableBankingToken) => Promise<void>;
       }
   }
   | {

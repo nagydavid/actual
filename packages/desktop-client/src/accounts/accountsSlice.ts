@@ -250,19 +250,24 @@ type LinkAccountPayload = {
   account: SyncServerGoCardlessAccount;
   upgradingId?: AccountEntity['id'] | undefined;
   offBudget?: boolean | undefined;
+  syncSource?:string| undefined;
 };
 
 export const linkAccount = createAppAsyncThunk(
   `${sliceName}/linkAccount`,
   async (
-    { requisitionId, account, upgradingId, offBudget }: LinkAccountPayload,
+    { requisitionId, account, upgradingId, offBudget, syncSource }: LinkAccountPayload,
     { dispatch },
   ) => {
+    if(syncSource === undefined){
+      syncSource = "goCardless";
+    }
     await send('gocardless-accounts-link', {
       requisitionId,
       account,
       upgradingId,
       offBudget,
+      syncSource,
     });
     dispatch(markPayeesDirty());
     dispatch(markAccountsDirty());

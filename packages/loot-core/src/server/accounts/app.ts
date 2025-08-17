@@ -68,7 +68,6 @@ export type AccountHandlers = {
   'simplefin-batch-sync': typeof simpleFinBatchSync;
   'transactions-import': typeof importTransactions;
   'account-unlink': typeof unlinkAccount;
-  'debug-set-bank-sync': typeof debugSetBankSync;
 } & EnableBankingAccountHandlers;
 
 async function updateAccount({
@@ -124,15 +123,17 @@ async function linkGoCardlessAccount({
   account,
   upgradingId,
   offBudget = false,
+  syncSource = "goCardless",
 }: {
   requisitionId: string;
   account: SyncServerGoCardlessAccount;
   upgradingId?: AccountEntity['id'] | undefined;
   offBudget?: boolean | undefined;
+  syncSource?: string | undefined;
 }) {
   let id;
-  const bank = await link.findOrCreateBank(account.institution, requisitionId);
-
+  const institution = (account.institution as {name:string}).name !== undefined? account.institution as {name:string}:{name:account.institution as string};
+  const bank = await link.findOrCreateBank(institution, requisitionId);
   if (upgradingId) {
     const accRow = await db.first<db.DbAccount>(
       'SELECT * FROM accounts WHERE id = ?',
@@ -148,7 +149,7 @@ async function linkGoCardlessAccount({
       id,
       account_id: account.account_id,
       bank: bank.id,
-      account_sync_source: 'goCardless',
+      account_sync_source: syncSource,
     });
   } else {
     id = uuidv4();
@@ -160,7 +161,7 @@ async function linkGoCardlessAccount({
       official_name: account.official_name,
       bank: bank.id,
       offbudget: offBudget ? 1 : 0,
-      account_sync_source: 'goCardless',
+      account_sync_source: syncSource,
     });
     await db.insertPayee({
       name: '',
@@ -497,7 +498,6 @@ async function setSecret({
   value: string | null;
 }) {
   const userToken = await asyncStorage.getItem('user-token');
-  console.log(userToken)
   if (!userToken) {
     return { error: 'unauthorized' };
   }
@@ -906,7 +906,6 @@ async function accountsBankSync({
 }): Promise<SyncResponseWithErrors> {
   const { 'user-id': userId, 'user-key': userKey } =
     await asyncStorage.multiGet(['user-id', 'user-key']);
-    console.log(ids)
 
   const accounts = await db.runQuery<
     db.DbAccount & { bankId: db.DbBank['bank_id'] }
@@ -922,7 +921,6 @@ async function accountsBankSync({
     ids,
     true,
   );
-  console.log(accounts)
 
   const errors: ReturnType<typeof handleSyncError>[] = [];
   const newTransactions: Array<TransactionEntity['id']> = [];
@@ -1219,24 +1217,6 @@ async function unlinkAccount({ id }: { id: AccountEntity['id'] }) {
   return 'ok';
 }
 
-async function debugSetBankSync({ id }: { id: AccountEntity['id'] }){
-  const res = await link.findOrCreateBank({name:'abn'},'yanky')
-
-  await db.updateAccount({
-    id,
-    account_id: "4e17ae78-83b4-47e6-ac94-9d5d0dffca16",
-    bank: res.id,
-    balance_current: null,
-    balance_available: null,
-    balance_limit: null,
-    account_sync_source: "enablebanking",
-  });
-}
-
-async function enableBankingStatus(){
-  
-}
-
 export const app = createApp<AccountHandlers>();
 
 app.method('account-update', mutator(undoable(updateAccount)));
@@ -1265,5 +1245,4 @@ app.method('accounts-bank-sync', accountsBankSync);
 app.method('simplefin-batch-sync', simpleFinBatchSync);
 app.method('transactions-import', mutator(undoable(importTransactions)));
 app.method('account-unlink', mutator(unlinkAccount));
-app.method('debug-set-bank-sync',debugSetBankSync);
 app.combine(enableBankingApp);
