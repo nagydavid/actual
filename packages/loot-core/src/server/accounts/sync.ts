@@ -317,7 +317,7 @@ async function downloadEnableBankingTransactions(
     60000,
   );
 
-  console.log(res)
+  console.log(res);
 
   let retVal = {};
   const singleRes = res as BankSyncResponse;
@@ -328,7 +328,6 @@ async function downloadEnableBankingTransactions(
   console.log('Response:', retVal);
   return retVal;
 }
-
 
 async function resolvePayee(trans, payeeName, payeesToCreate) {
   if (trans.payee == null && payeeName) {
@@ -1038,10 +1037,8 @@ export async function syncAccount(
       syncStartDate,
       newAccount,
     );
-  } else if (acctRow.account_sync_source === "enablebanking"){
-    download = await downloadEnableBankingTransactions(
-      acctId, syncStartDate
-    )
+  } else if (acctRow.account_sync_source === 'enablebanking') {
+    download = await downloadEnableBankingTransactions(acctId, syncStartDate);
   } else {
     throw new Error(
       `Unrecognized bank-sync provider: ${acctRow.account_sync_source}`,

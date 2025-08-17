@@ -43,7 +43,6 @@ import { useAccounts } from '@desktop-client/hooks/useAccounts';
 import { useFormat } from '@desktop-client/hooks/useFormat';
 import { closeModal } from '@desktop-client/modals/modalsSlice';
 import { useDispatch } from '@desktop-client/redux';
-import { SyncServerEnableBankingAccount } from 'loot-core/types/models/enablebanking';
 
 function useAddBudgetAccountOptions() {
   const { t } = useTranslation();
@@ -75,8 +74,8 @@ export type SelectLinkedAccountsModalProps =
       requisitionId?: undefined;
       externalAccounts: SyncServerPluggyAiAccount[];
       syncSource: 'pluggyai';
-    }|
-    {
+    }
+  | {
       requisitionId: string;
       externalAccounts: SyncServerGoCardlessAccount[]; // we are using this here as the "standard" to avoid clutter in the code.
       syncSource: 'enablebanking';
@@ -109,7 +108,7 @@ export function SelectLinkedAccountsModal({
         case 'goCardless':
         case 'enablebanking':
           return {
-            syncSource: syncSource,
+            syncSource,
             requisitionId: requisitionId!,
             externalAccounts: toSort as SyncServerGoCardlessAccount[],
           };
@@ -207,7 +206,7 @@ export function SelectLinkedAccountsModal({
                   ? chosenLocalAccountId
                   : undefined,
               offBudget,
-              syncSource
+              syncSource,
             }),
           );
         }

@@ -45,8 +45,6 @@ import { Balances } from './Balance';
 import { BalanceHistoryGraph } from './BalanceHistoryGraph';
 import { ReconcileMenu, ReconcilingMessage } from './Reconcile';
 
-import { send } from 'loot-core/platform/client/fetch';
-
 import { AnimatedRefresh } from '@desktop-client/components/AnimatedRefresh';
 import { Search } from '@desktop-client/components/common/Search';
 import { FilterButton } from '@desktop-client/components/filters/FiltersMenu';
@@ -624,7 +622,6 @@ function AccountSyncSidebar({
     />
   );
 }
-
 
 type AccountNameFieldProps = {
   account?: AccountEntity;

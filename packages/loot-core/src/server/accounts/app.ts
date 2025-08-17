@@ -34,12 +34,13 @@ import { getServer } from '../server-config';
 import { batchMessages } from '../sync';
 import { undoable, withUndo } from '../undo';
 
+import {
+  app as enableBankingApp,
+  AccountHandlers as EnableBankingAccountHandlers,
+} from './enablebanking';
 import * as link from './link';
 import { getStartingBalancePayee } from './payees';
 import * as bankSync from './sync';
-import { array } from 'jsverify';
-import { send } from 'loot-core/platform/client/fetch';
-import {app as enableBankingApp, AccountHandlers as EnableBankingAccountHandlers} from './enablebanking';
 
 export type AccountHandlers = {
   'account-update': typeof updateAccount;
@@ -123,7 +124,7 @@ async function linkGoCardlessAccount({
   account,
   upgradingId,
   offBudget = false,
-  syncSource = "goCardless",
+  syncSource = 'goCardless',
 }: {
   requisitionId: string;
   account: SyncServerGoCardlessAccount;
@@ -132,7 +133,10 @@ async function linkGoCardlessAccount({
   syncSource?: string | undefined;
 }) {
   let id;
-  const institution = (account.institution as {name:string}).name !== undefined? account.institution as {name:string}:{name:account.institution as string};
+  const institution =
+    (account.institution as { name: string }).name !== undefined
+      ? (account.institution as { name: string })
+      : { name: account.institution as string };
   const bank = await link.findOrCreateBank(institution, requisitionId);
   if (upgradingId) {
     const accRow = await db.first<db.DbAccount>(
@@ -202,7 +206,7 @@ async function linkSimpleFinAccount({
 
   const bank = await link.findOrCreateBank(
     institution,
-    externalAccount.orgDomain ?? externalAccount.orgId ?? "unknown",
+    externalAccount.orgDomain ?? externalAccount.orgId ?? 'unknown',
   );
 
   if (upgradingId) {
@@ -272,7 +276,7 @@ async function linkPluggyAiAccount({
 
   const bank = await link.findOrCreateBank(
     institution,
-    externalAccount.orgDomain ?? externalAccount.orgId ?? "unknown",
+    externalAccount.orgDomain ?? externalAccount.orgId ?? 'unknown',
   );
 
   if (upgradingId) {
@@ -519,7 +523,7 @@ async function setSecret({
       },
     );
   } catch (error) {
-    console.log("this errored somehow")
+    console.log('this errored somehow');
     return {
       error: 'failed',
       reason: error instanceof PostError ? error.reason : undefined,
@@ -537,12 +541,14 @@ async function checkSecret(name: string) {
   if (!serverConfig) {
     throw new Error('Failed to get server config.');
   }
-  console.log("ready to retrieve data")
+  console.log('ready to retrieve data');
 
   try {
-    return await get(serverConfig.BASE_SERVER + '/secret/' + name, {headers:{
-      'X-ACTUAL-TOKEN': userToken,
-    }});
+    return await get(serverConfig.BASE_SERVER + '/secret/' + name, {
+      headers: {
+        'X-ACTUAL-TOKEN': userToken,
+      },
+    });
   } catch (error) {
     logger.error(error);
     return { error: 'failed' };

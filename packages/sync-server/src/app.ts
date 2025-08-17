@@ -19,7 +19,6 @@ import * as simpleFinApp from './app-simplefin/app-simplefin';
 import * as syncApp from './app-sync';
 import { config } from './load-config';
 
-
 const app = express();
 
 process.on('unhandledRejection', reason => {
