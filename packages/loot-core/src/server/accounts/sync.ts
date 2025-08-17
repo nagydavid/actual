@@ -36,6 +36,7 @@ import {
 
 import { getStartingBalancePayee } from './payees';
 import { title } from './title';
+import { downloadEnableBankingTransactions } from './enablebanking';
 
 function BankSyncError(type: string, code: string, details?: object) {
   return { type: 'BankSyncError', category: type, code, details };
@@ -293,39 +294,6 @@ async function downloadPluggyAiTransactions(
   };
 
   logger.log('Response:', retVal);
-  return retVal;
-}
-
-async function downloadEnableBankingTransactions(
-  acctId: AccountEntity['id'],
-  since: string,
-) {
-  const userToken = await asyncStorage.getItem('user-token');
-  if (!userToken) return;
-
-  console.log(`Pulling transactions from enablebanking since ${since}`);
-
-  const res = await post(
-    getServer().ENABLEBANKING_SERVER + '/transactions',
-    {
-      accountId: acctId,
-      startDate: since,
-    },
-    {
-      'X-ACTUAL-TOKEN': userToken,
-    },
-    60000,
-  );
-
-  console.log(res);
-
-  let retVal = {};
-  const singleRes = res as BankSyncResponse;
-  retVal = {
-    transactions: singleRes.transactions.all,
-  };
-
-  console.log('Response:', retVal);
   return retVal;
 }
 
@@ -1021,6 +989,7 @@ export async function syncAccount(
 
   const syncStartDate = await getAccountSyncStartDate(id);
   const oldestTransaction = await getAccountOldestTransaction(id);
+  console.log(syncStartDate, oldestTransaction);
   const newAccount = oldestTransaction == null;
 
   let download;
