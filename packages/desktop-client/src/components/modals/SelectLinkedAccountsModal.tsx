@@ -79,7 +79,7 @@ export type SelectLinkedAccountsModalProps =
     {
       requisitionId: string;
       externalAccounts: SyncServerGoCardlessAccount[]; // we are using this here as the "standard" to avoid clutter in the code.
-      syncSource: 'enablebanking'
+      syncSource: 'enablebanking';
     };
 
 export function SelectLinkedAccountsModal({
@@ -107,8 +107,9 @@ export function SelectLinkedAccountsModal({
             externalAccounts: toSort as SyncServerPluggyAiAccount[],
           };
         case 'goCardless':
+        case 'enablebanking':
           return {
-            syncSource: 'goCardless',
+            syncSource: syncSource,
             requisitionId: requisitionId!,
             externalAccounts: toSort as SyncServerGoCardlessAccount[],
           };
