@@ -34,9 +34,9 @@ import {
   mappingsFromString,
 } from '../util/custom-sync-mapping';
 
+import { downloadEnableBankingTransactions } from './enablebanking';
 import { getStartingBalancePayee } from './payees';
 import { title } from './title';
-import { downloadEnableBankingTransactions } from './enablebanking';
 
 function BankSyncError(type: string, code: string, details?: object) {
   return { type: 'BankSyncError', category: type, code, details };
@@ -1007,7 +1007,11 @@ export async function syncAccount(
       newAccount,
     );
   } else if (acctRow.account_sync_source === 'enablebanking') {
-    download = await downloadEnableBankingTransactions(acctId, syncStartDate, bankId);
+    download = await downloadEnableBankingTransactions(
+      acctId,
+      syncStartDate,
+      bankId,
+    );
   } else {
     throw new Error(
       `Unrecognized bank-sync provider: ${acctRow.account_sync_source}`,
