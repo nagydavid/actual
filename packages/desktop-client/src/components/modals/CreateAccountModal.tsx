@@ -623,8 +623,6 @@ export function CreateAccountModal({
                           hundreds of banks.
                         </Trans>
                       </Text>
-                      {isPluggyAiEnabled && (
-                        <>
                           <View
                             style={{
                               flexDirection: 'row',
